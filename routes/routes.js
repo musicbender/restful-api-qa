@@ -2,13 +2,24 @@
 
 const express = require('express')
 const router = express.Router();
+const Question = require('./models').Question;
 
 // GET /questions
-router.get('/', function(req, res) {
+router.get('/', function(req, res, next) {
+  Question.find({}, null, {sort: (createdAt: -1}}, function(err, questions) {
+    if(err) { return next(err); }
+    res.json(questions);
+  });
   res.json({response: "you sent a GET requestion!"});
 });
 
-router.post('/', function(req, res) {
+router.post('/', function(req, res,next) {
+  const question = new Question(req.body);
+  question.save(function(err, question) {
+    if(err) { return next(err); }
+    res.status(201);
+    res.json(question);
+  });
   res.json({
     response: "You sent a POST request",
     body: req.body
